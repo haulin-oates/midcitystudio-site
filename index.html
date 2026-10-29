@@ -113,6 +113,8 @@
     opacity: 0;
   }
   .neon-word.w2::after { background-image: var(--tube-city); }
+  .neon-word.w1 { left: -0.2em; }   /* "Mid" sits a little left */
+  .neon-word.w2 { left: 0.2em; }    /* "City" sits a little right */
   .is-lit .neon-word::after { opacity: 1; }
   .is-lit { animation: hum 3s ease-in-out infinite; }
   @keyframes hum { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(0.92); } }
@@ -141,7 +143,7 @@
   }
   .intro-screen.hum .stage::before { opacity: 1; }
   .intro-screen .neon-sign {
-    font-size: min(34vw, 26vh);
+    font-size: min(27vw, 26vh);
     transition: transform 0.95s cubic-bezier(0.65, 0, 0.25, 1);
   }
   .intro-screen.lit .w1::after { animation: flick 0.9s linear forwards; }
@@ -155,8 +157,8 @@
   /* Beaded pull chain hanging beside the sign */
   .chain {                                      /* short, rusty, hanging from under the sign */
     position: absolute;
-    right: 0.28em;
-    top: 86%;
+    right: -0.75em;
+    top: 78%;
     width: 6px;
     height: 0.62em;
     background: radial-gradient(circle at 42% 40%, #8A5634 0 1px, #5C341F 1.6px, #3A2014 2.2px, transparent 2.6px) 0 0 / 6px 7px repeat-y;
@@ -232,7 +234,7 @@
   .hero .neon-sign { font-size: clamp(5.5rem, 24vw, 11rem); display: inline-block; }
   .logo-sub {
     display: block;
-    margin-top: 0.6rem;
+    margin-top: clamp(1.1rem, 3.5vw, 1.9rem);
     font: 500 clamp(0.95rem, 2.6vw, 1.1rem)/1 "Archivo", Arial, sans-serif;
     font-stretch: 115%;
     letter-spacing: 0.42em;
@@ -353,7 +355,7 @@
 
   <section class="section alt" id="listen" aria-labelledby="listen-title">
     <div class="wrap">
-      <h2 id="listen-title">Hear what we've made</h2>
+      <h2 id="listen-title">Listen up</h2>
       <p class="lede">Records tracked, mixed and produced at Mid City.</p>
       <!-- To swap playlists: paste a new Spotify share link between the quotes. -->
       <div class="player" data-playlist="https://open.spotify.com/playlist/1v2Q1wb37n3NPszOTW0qYt"></div>
@@ -364,7 +366,7 @@
        To link a name, wrap it like this:  <li><a href="https://open.spotify.com/artist/...">Name</a></li> -->
   <section class="section" id="artists" aria-labelledby="artists-title">
     <div class="wrap">
-      <h2 id="artists-title">Artists we've worked with</h2>
+      <h2 id="artists-title">Link up</h2>
       <p class="lede">A few of the people who've come through the doors.</p>
       <ul class="strip">
         <li>Aaron Rice</li>
@@ -583,6 +585,39 @@
     screen.addEventListener('click', skip);
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') skip(); });
     setTimeout(skip, 10000);
+  })();
+
+  // Link up list: pulled live from the Google Sheet "Mid City website – Link Up list"
+  // (columns: Name, Link, Section = Artist or Partner). The names in the HTML are a backup
+  // that shows if the sheet can't be reached.
+  (function () {
+    var SHEET = '18zY6uD9Cvupz95PyWPfbCSCZ_fg0MnIjvBXVC2jnrLY';
+    var url = 'https://docs.google.com/spreadsheets/d/' + SHEET + '/gviz/tq?tqx=out:json';
+    function cell(r, i) { return r.c[i] && r.c[i].v != null ? String(r.c[i].v).trim() : ''; }
+    function fill(list, rows) {
+      list.innerHTML = '';
+      rows.forEach(function (r) {
+        var li = document.createElement('li');
+        if (/^https?:\/\//i.test(r.link)) {
+          var a = document.createElement('a');
+          a.href = r.link; a.target = '_blank'; a.rel = 'noopener'; a.textContent = r.name;
+          li.appendChild(a);
+        } else { li.textContent = r.name; }
+        list.appendChild(li);
+      });
+    }
+    fetch(url).then(function (res) { return res.text(); }).then(function (txt) {
+      var json = JSON.parse(txt.slice(txt.indexOf('{'), txt.lastIndexOf('}') + 1));
+      var rows = (json.table.rows || []).map(function (r) {
+        return { name: cell(r, 0), link: cell(r, 1), section: cell(r, 2).toLowerCase() };
+      }).filter(function (r) { return r.name && r.name.toLowerCase() !== 'name'; });
+      if (!rows.length) return;
+      var byName = function (a, b) { return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }); };
+      var artists = rows.filter(function (r) { return r.section.indexOf('partner') !== 0; }).sort(byName);
+      var partners = rows.filter(function (r) { return r.section.indexOf('partner') === 0; });
+      if (artists.length) fill(document.querySelector('.strip'), artists);
+      if (partners.length) fill(document.querySelector('.partners'), partners);
+    }).catch(function () { /* keep the backup list */ });
   })();
 
   // Spotify: turn the pasted share link into an embedded player.
