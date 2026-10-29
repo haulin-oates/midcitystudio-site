@@ -15,11 +15,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" rel="stylesheet">
+<link rel="preload" href="assets/fonts/neonderthaw.woff2" as="font" type="font/woff2" crossorigin>
 
 <!--
   MID CITY STUDIO, v1 site
   - Artist and partner lists: one <li> per name (see the "artists" section).
-  - Images and the intro video live in the assets/ folder.
+  - Images, the logo and the neon sign font live in the assets/ folder.
   - The neon intro plays on every visit (visitors can skip it).
 -->
 
@@ -33,7 +34,15 @@
 </script>
 
 <style>
+  /* Neon sign lettering (Neonderthaw, open font license, file in assets/fonts) */
+  @font-face {
+    font-family: "Neonderthaw";
+    src: url("assets/fonts/neonderthaw.woff2") format("woff2");
+    font-display: block;
+  }
+
   :root {
+    --neon-font: "Neonderthaw", cursive;
     --paper:   #F3EEDB;   /* logo cream */
     --paper-2: #E9E2C8;
     --forest:  #1B3320;   /* logo dark green */
@@ -92,16 +101,60 @@
     transition: background-color 1.1s ease, opacity 0.5s ease;
   }
   html.intro .hero h1 img { opacity: 0; }
-  .intro-screen video { width: 100%; height: 100%; object-fit: cover; transition: opacity 1s ease; }
-  /* Tall screens (phones): show the whole sign instead of cropping its sides,
-     and fade the video's top and bottom edges into the dark background. */
-  @media (max-aspect-ratio: 4/3) {
-    .intro-screen video {
-      object-fit: contain;
-      -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 calc(50% - 26vw), #000 calc(50% + 22vw), transparent 100%);
-              mask-image: linear-gradient(to bottom, transparent 0, #000 calc(50% - 26vw), #000 calc(50% + 22vw), transparent 100%);
-    }
+  /* The neon sign: dark glass tubes that flicker on, word by word */
+  .neon {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    transition: opacity 0.9s ease;
   }
+  .neon::before {             /* warm light spilling onto the wall */
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, rgba(255, 110, 50, 0.22), transparent 62%);
+    opacity: 0;
+    transition: opacity 0.8s ease;
+  }
+  .intro-screen.hum .neon::before { opacity: 1; }
+  .neon-sign {
+    position: relative;
+    font-family: var(--neon-font);
+    font-size: min(34vw, 26vh);
+    line-height: 0.98;
+    user-select: none;
+  }
+  .neon-word { display: block; position: relative; color: #4A2418; }   /* unlit glass */
+  .neon-word::after {                                                  /* lit tube */
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    color: #FFF1E6;
+    text-shadow:
+      0 0 2px #fff,
+      0 0 6px #FFB38A,
+      0 0 14px #FF8A4C,
+      0 0 28px #FF6A2B,
+      0 0 56px #E2502B,
+      0 0 96px rgba(226, 80, 43, 0.6);
+    opacity: 0;
+  }
+  .intro-screen.lit .w1::after { animation: flick 0.9s linear forwards; }
+  .intro-screen.lit .w2::after { animation: flick 1s linear 0.75s forwards; }
+  @keyframes flick {
+    0%   { opacity: 0; }
+    6%   { opacity: 1; }
+    9%   { opacity: 0.1; }
+    16%  { opacity: 0.9; }
+    19%  { opacity: 0.15; }
+    34%  { opacity: 1; }
+    38%  { opacity: 0.6; }
+    46%, 100% { opacity: 1; }
+  }
+  .intro-screen.hum .neon-sign { animation: hum 2.4s ease-in-out infinite; }
+  @keyframes hum { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(0.9); } }
   .intro-logo {
     position: absolute;
     left: 50%;
@@ -116,7 +169,7 @@
   }
   /* Stage 1: the lit sign fades out, the room warms to cream, the logo glows in */
   html.intro .intro-screen.blend { background-color: var(--paper); }
-  .intro-screen.blend video { opacity: 0; }
+  .intro-screen.blend .neon { opacity: 0; }
   .intro-screen.blend .intro-logo { opacity: 1; filter: drop-shadow(0 0 22px rgba(255, 138, 76, 0.85)); }
   .intro-screen.blend .intro-skip { opacity: 0; pointer-events: none; }
   /* Stage 2: the page shows through and the logo settles into place */
@@ -256,7 +309,9 @@
 <body>
 
 <div class="intro-screen" id="intro" aria-hidden="true">
-  <video id="intro-video" muted playsinline preload="none" poster="assets/neon-poster.jpg" data-src="assets/neon-intro.mp4"></video>
+  <div class="neon">
+    <p class="neon-sign"><span class="neon-word w1" data-text="Mid">Mid</span><span class="neon-word w2" data-text="City">City</span></p>
+  </div>
   <img class="intro-logo" id="intro-logo" src="assets/logo.png" alt="" width="900" height="440">
   <button class="intro-skip" type="button" id="intro-skip">Skip intro</button>
 </div>
@@ -454,12 +509,11 @@
 </footer>
 
 <script>
-  // Neon intro: the sign lights up, glows into the logo, and the logo settles into the page.
+  // Neon intro: the sign flickers on, glows into the logo, and the logo settles into the page.
   (function () {
     var root = document.documentElement;
     var screen = document.getElementById('intro');
     if (!root.classList.contains('intro')) { screen.remove(); return; }
-    var video = document.getElementById('intro-video');
     var flyer = document.getElementById('intro-logo');
     var target = document.querySelector('.hero h1 img');
     var stage = 0; // 0 = playing, 1 = blending into the logo, 2 = done
@@ -501,15 +555,22 @@
       }, 1300);
     }
 
-    video.src = video.getAttribute('data-src');
-    video.addEventListener('timeupdate', function () { if (video.currentTime >= 5.2) blend(); });
-    video.addEventListener('ended', blend);
-    video.addEventListener('error', skip);
+    // Light the sign once its lettering has loaded (or after 1.2s, whichever comes first).
+    var started = false;
+    function start() {
+      if (started || stage !== 0) return;
+      started = true;
+      screen.classList.add('lit');                                       // "Mid", then "City" flicker on
+      setTimeout(function () { screen.classList.add('hum'); }, 1750);     // fully lit, gentle hum
+      setTimeout(blend, 3300);                                            // glow into the logo
+    }
+    var fontReady = (document.fonts && document.fonts.load) ? document.fonts.load('100px Neonderthaw') : null;
+    if (fontReady) fontReady.then(function () { setTimeout(start, 250); }, start);
+    setTimeout(start, 1200);
+
     screen.addEventListener('click', skip);
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') skip(); });
-    setTimeout(skip, 14000);
-    var p = video.play();
-    if (p && p.catch) p.catch(skip);
+    setTimeout(skip, 10000);
   })();
 
   // Spotify: turn the pasted share link into an embedded player.
