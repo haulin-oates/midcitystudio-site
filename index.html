@@ -14,7 +14,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='12' fill='%23E2602B'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Permanent+Marker&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" rel="stylesheet">
 
 <!--
   MID CITY STUDIO, v1 site
@@ -51,7 +51,7 @@
   }
 
   *, *::before, *::after { box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
+  html { scroll-behavior: smooth; scrollbar-gutter: stable; }
   @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 
   body {
@@ -90,11 +90,32 @@
     position: fixed;
     inset: 0;
     z-index: 100;
-    background: #140B07;
-    transition: opacity 1.2s ease;
+    background-color: #140B07;
+    transition: background-color 1.1s ease, opacity 0.5s ease;
   }
+  html.intro .hero h1 img { opacity: 0; }
+  .intro-screen video { width: 100%; height: 100%; object-fit: cover; transition: opacity 1s ease; }
+  .intro-logo {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: min(80vw, 34rem);
+    height: auto;
+    translate: -50% -50%;
+    opacity: 0;
+    filter: drop-shadow(0 0 0 rgba(255, 138, 76, 0));
+    transition: opacity 1s ease, filter 1.2s ease, transform 0.95s cubic-bezier(0.65, 0, 0.25, 1);
+    pointer-events: none;
+  }
+  /* Stage 1: the lit sign fades out, the room warms to cream, the logo glows in */
+  html.intro .intro-screen.blend { background-color: var(--paper); }
+  .intro-screen.blend video { opacity: 0; }
+  .intro-screen.blend .intro-logo { opacity: 1; filter: drop-shadow(0 0 22px rgba(255, 138, 76, 0.85)); }
+  .intro-screen.blend .intro-skip { opacity: 0; pointer-events: none; }
+  /* Stage 2: the page shows through and the logo settles into place */
+  html.intro .intro-screen.land { background-color: rgba(243, 238, 219, 0); }
+  .intro-screen.land .intro-logo { filter: drop-shadow(0 0 0 rgba(255, 138, 76, 0)); }
   .intro-screen.out { opacity: 0; pointer-events: none; }
-  .intro-screen video { width: 100%; height: 100%; object-fit: cover; }
   .intro-skip {
     position: absolute;
     right: 1.25rem;
@@ -112,11 +133,14 @@
   /* ---------- Hero ---------- */
   .hero {
     position: relative;
-    padding: clamp(2.5rem, 8vw, 5.5rem) 0 clamp(3rem, 8vw, 5.5rem);
+    display: grid;
+    place-items: center;
+    min-height: min(82vh, 46rem);
+    padding: clamp(3rem, 8vw, 5rem) 0;
+    text-align: center;
     background: var(--paper) url("assets/wash-1.jpg") center / cover no-repeat;
   }
-  .hero-grid { display: grid; gap: 2.5rem; align-items: center; }
-  @media (min-width: 860px) { .hero-grid { grid-template-columns: 1.05fr 1fr; gap: 3.5rem; } }
+  .hero-inner { max-width: 44rem; margin: 0 auto; }
 
   .status {
     display: inline-flex; align-items: center; gap: 0.6rem;
@@ -131,11 +155,11 @@
   @keyframes lamp { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
   @media (prefers-reduced-motion: reduce) { .lamp { animation: none; } }
 
-  .hero h1 img { width: min(100%, 34rem); height: auto; margin-left: -0.4rem; }
-  .tagline { max-width: 32rem; margin: 1.5rem 0 0; font-size: clamp(1.15rem, 3.4vw, 1.4rem); line-height: 1.45; }
+  .hero h1 img { width: min(100%, 34rem); height: auto; margin: 0 auto; }
+  .tagline { max-width: 32rem; margin: 1.75rem auto 0; font-size: clamp(1.15rem, 3.4vw, 1.4rem); line-height: 1.45; }
   .services { margin: 0.5rem 0 0; color: var(--muted); }
 
-  .actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 2rem; }
+  .actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem; margin-top: 2rem; }
   .btn {
     display: inline-block; padding: 0.85rem 1.4rem;
     font-weight: 600; font-size: 1rem; text-decoration: none;
@@ -145,15 +169,6 @@
   .btn-main:hover { background: #8E4519; border-color: #8E4519; color: #fff; }
   .btn-line { background: transparent; color: var(--ink); }
   .btn-line:hover { background: var(--ink); color: var(--paper); }
-
-  .sign {
-    margin: 0;
-    border-radius: 6px;
-    overflow: hidden;
-    background: #140B07;
-    box-shadow: 0 18px 50px -18px rgba(226, 96, 43, 0.55), 0 2px 0 rgba(0, 0, 0, 0.08);
-  }
-  .sign img { width: 100%; height: auto; aspect-ratio: 1166 / 656; object-fit: cover; }
 
   /* ---------- Sections ---------- */
   .section { padding: clamp(3rem, 9vw, 5.5rem) 0; }
@@ -172,37 +187,26 @@
     border: 2px dashed rgba(237, 231, 211, 0.3); border-radius: 12px; text-align: center;
   }
 
-  /* Rooms */
-  .rooms { display: grid; gap: 1rem; margin-top: 2.25rem; }
-  @media (min-width: 760px) {
-    .rooms { grid-template-columns: 1.6fr 1fr 0.8fr; align-items: stretch; }
-  }
-  .rooms figure { margin: 0; display: flex; flex-direction: column; }
-  .rooms img {
-    width: 100%; flex: 1; min-height: 0;
-    aspect-ratio: 4 / 3; object-fit: cover;
-    border-radius: 4px; background: var(--paper-2);
-  }
-  @media (min-width: 760px) { .rooms img { aspect-ratio: auto; height: 26rem; } }
-  .rooms figcaption { margin-top: 0.55rem; font-size: 0.95rem; color: var(--muted); }
-
   /* Artists: the scribble strip */
   .strip {
     list-style: none; margin: 2.25rem 0 0; padding: 0;
-    display: flex; flex-wrap: wrap; gap: 0.9rem 0.7rem;
+    display: flex; flex-wrap: wrap; gap: 0.75rem 0.6rem;
   }
   .strip li {
-    font-family: "Permanent Marker", "Marker Felt", "Chalkboard SE", "Segoe Print", "Bradley Hand", cursive;
-    font-size: clamp(0.95rem, 3.4vw, 1.25rem);
+    font-family: "Archivo", "Helvetica Neue", Arial, sans-serif;
+    font-stretch: 88%;
+    font-weight: 600;
+    font-size: clamp(0.98rem, 3.2vw, 1.12rem);
+    letter-spacing: 0.01em;
     line-height: 1.2;
     color: #1E2427;
     background: var(--tape);
-    padding: 0.5rem 1rem 0.4rem;
-    transform: rotate(-1.2deg);
+    padding: 0.5rem 0.95rem 0.45rem;
+    transform: rotate(-0.6deg);
     clip-path: polygon(0 6%, 4% 0, 50% 3%, 96% 0, 100% 8%, 99% 52%, 100% 94%, 95% 100%, 50% 97%, 3% 100%, 0 92%, 1% 48%);
   }
-  .strip li:nth-child(3n+2) { transform: rotate(0.9deg); }
-  .strip li:nth-child(3n)   { transform: rotate(-0.4deg); }
+  .strip li:nth-child(3n+2) { transform: rotate(0.5deg); }
+  .strip li:nth-child(3n)   { transform: rotate(-0.2deg); }
   .strip a { color: inherit; text-decoration: none; }
   .strip a:hover { color: var(--amber); text-decoration: underline; }
 
@@ -223,6 +227,10 @@
   .note { margin: 0.75rem 0 0; color: var(--muted); }
   .map-links { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1.4rem; }
   .map-links .btn { padding: 0.65rem 1.1rem; font-size: 0.95rem; }
+  .details { margin: 0; padding: 0; list-style: none; }
+  .details li { padding: 0.8rem 0; border-top: 1px solid var(--line); }
+  .details li:last-child { border-bottom: 1px solid var(--line); }
+  .details strong { display: block; font-weight: 600; }
   .parking-map { display: block; margin-top: 1rem; max-width: 26rem; }
   .parking-map img { width: 100%; height: auto; border-radius: 4px; border: 1px solid var(--line); }
 
@@ -242,12 +250,13 @@
 
 <div class="intro-screen" id="intro" aria-hidden="true">
   <video id="intro-video" muted playsinline preload="none" poster="assets/neon-poster.jpg" data-src="assets/neon-intro.mp4"></video>
+  <img class="intro-logo" id="intro-logo" src="assets/logo.png" alt="" width="900" height="440">
   <button class="intro-skip" type="button" id="intro-skip">Skip intro</button>
 </div>
 
 <header class="hero">
-  <div class="wrap hero-grid">
-    <div>
+  <div class="wrap">
+    <div class="hero-inner">
       <p class="status"><span class="lamp" aria-hidden="true"></span>Booking sessions now</p>
       <h1><img src="assets/logo.png" alt="Mid City Studio" width="900" height="440"></h1>
       <p class="tagline">An all-purpose recording studio in the middle of Minneapolis. Let's make art.</p>
@@ -258,9 +267,6 @@
         <a class="btn btn-line" href="#visit">Find the studio</a>
       </div>
     </div>
-    <figure class="sign">
-      <img src="assets/neon-lit.jpg" alt="The Mid City neon sign, lit" width="1166" height="656">
-    </figure>
   </div>
 </header>
 
@@ -272,28 +278,6 @@
       <p class="lede">Records tracked, mixed and produced at Mid City.</p>
       <!-- To swap playlists: paste a new Spotify share link between the quotes. -->
       <div class="player" data-playlist="https://open.spotify.com/playlist/1v2Q1wb37n3NPszOTW0qYt"></div>
-    </div>
-  </section>
-
-  <section class="section" id="rooms" aria-labelledby="rooms-title">
-    <div class="wrap">
-      <h2 id="rooms-title">The rooms</h2>
-      <p class="lede">Space to track a full band, then sit down and mix it.</p>
-      <!-- EDIT: room names in the captions -->
-      <div class="rooms">
-        <figure>
-          <img src="assets/room-live.jpg" alt="A band set up in the live room under green light" width="1400" height="788" loading="lazy">
-          <figcaption>Live room</figcaption>
-        </figure>
-        <figure>
-          <img src="assets/room-console.jpg" alt="An engineer at the production console under purple light" width="750" height="1000" loading="lazy">
-          <figcaption>Production console</figcaption>
-        </figure>
-        <figure>
-          <img src="assets/room-studio-a.jpg" alt="Studio A desk with feathered wall panels" width="449" height="796" loading="lazy">
-          <figcaption>Studio A</figcaption>
-        </figure>
-      </div>
     </div>
   </section>
 
@@ -418,7 +402,12 @@
         </div>
         <div>
           <h3>Parking and getting in</h3>
-          <!-- EDIT: parking details -->
+          <!-- EDIT: parking details. When ready, swap the paragraph below for a list like:
+          <ul class="details">
+            <li><strong>Parking</strong>Where to park, and any meters or permits</li>
+            <li><strong>Entrance</strong>Which door to use and how to get in</li>
+            <li><strong>Load-in</strong>Where to unload gear</li>
+          </ul> -->
           <p class="note">Parking and the entrance are marked on the map. Email us before your session with any questions and we'll walk you through it.</p>
           <a class="parking-map" href="assets/parking-map.jpg" target="_blank" rel="noopener">
             <img src="assets/parking-map.jpg" alt="Map showing where to park and the entrance on N 1st Ave" width="868" height="1000" loading="lazy">
@@ -458,29 +447,62 @@
 </footer>
 
 <script>
-  // Neon intro: plays once, then fades into the page.
+  // Neon intro: the sign lights up, glows into the logo, and the logo settles into the page.
   (function () {
     var root = document.documentElement;
     var screen = document.getElementById('intro');
     if (!root.classList.contains('intro')) { screen.remove(); return; }
     var video = document.getElementById('intro-video');
-    var done = false;
-    function finish() {
-      if (done) return;
-      done = true;
-      try { localStorage.setItem('mcs-intro-seen', '1'); } catch (e) {}
+    var flyer = document.getElementById('intro-logo');
+    var target = document.querySelector('.hero h1 img');
+    var stage = 0; // 0 = playing, 1 = blending into the logo, 2 = done
+
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    window.scrollTo(0, 0);
+
+    function remember() { try { localStorage.setItem('mcs-intro-seen', '1'); } catch (e) {} }
+
+    // Skip: fade straight to the page.
+    function skip() {
+      if (stage === 2) return;
+      stage = 2;
+      remember();
       screen.classList.add('out');
-      setTimeout(function () { root.classList.remove('intro'); screen.remove(); }, 1250);
+      setTimeout(function () { root.classList.remove('intro'); screen.remove(); }, 550);
     }
+
+    function blend() {
+      if (stage !== 0) return;
+      stage = 1;
+      remember();
+      screen.classList.add('blend');
+      setTimeout(function () {
+        if (stage !== 1) return;
+        var a = flyer.getBoundingClientRect();
+        var b = target.getBoundingClientRect();
+        var dx = (b.left + b.width / 2) - (a.left + a.width / 2);
+        var dy = (b.top + b.height / 2) - (a.top + a.height / 2);
+        flyer.style.transform = 'translate(' + dx + 'px, ' + dy + 'px) scale(' + (b.width / a.width) + ')';
+        screen.classList.add('land');
+        setTimeout(function () {
+          if (stage !== 1) return;
+          stage = 2;
+          root.classList.remove('intro');
+          screen.classList.add('out');
+          setTimeout(function () { screen.remove(); }, 550);
+        }, 1000);
+      }, 1300);
+    }
+
     video.src = video.getAttribute('data-src');
-    video.addEventListener('timeupdate', function () { if (video.currentTime >= 6.6) finish(); });
-    video.addEventListener('ended', finish);
-    video.addEventListener('error', finish);
-    screen.addEventListener('click', finish);
-    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') finish(); });
-    setTimeout(finish, 12000);
+    video.addEventListener('timeupdate', function () { if (video.currentTime >= 5.2) blend(); });
+    video.addEventListener('ended', blend);
+    video.addEventListener('error', skip);
+    screen.addEventListener('click', skip);
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') skip(); });
+    setTimeout(skip, 14000);
     var p = video.play();
-    if (p && p.catch) p.catch(finish);
+    if (p && p.catch) p.catch(skip);
   })();
 
   // Spotify: turn the pasted share link into an embedded player.
