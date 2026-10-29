@@ -9,156 +9,187 @@
 <meta property="og:description" content="An all-purpose recording studio in the middle of Minneapolis. Let's make art.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://midcitystudio.com/">
-<meta name="theme-color" content="#2E3A44">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='12' fill='%23C7352B'/%3E%3C/svg%3E">
+<meta property="og:image" content="https://midcitystudio.com/assets/og-image.jpg">
+<meta name="theme-color" content="#1B3320">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='12' fill='%23E2602B'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Permanent+Marker&display=swap" rel="stylesheet">
 
 <!--
   MID CITY STUDIO, v1 site
-  One thing is still to fill in: the parking details, marked with an EDIT comment.
-  The artist list is in the "artists" section: one <li> line per name.
+  - Artist and partner lists: one <li> per name (see the "artists" section).
+  - Images and the intro video live in the assets/ folder.
+  - The neon intro plays once per visitor. Add #intro to the address to watch it again.
 -->
+
+<script>
+  // Decide before the page draws whether to show the neon intro (first visit only).
+  (function () {
+    var seen = false;
+    try { seen = localStorage.getItem('mcs-intro-seen') === '1'; } catch (e) {}
+    var force = location.hash === '#intro';
+    var calm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (force || (!seen && !calm)) document.documentElement.classList.add('intro');
+  })();
+</script>
 
 <style>
   :root {
-    --plate: #DADDD8;   /* console faceplate: page background */
-    --slate: #2E3A44;   /* console body: dark bands */
-    --ink:   #1D252B;   /* main text */
-    --muted: #4E5960;   /* secondary text */
-    --tape:  #EFE6C8;   /* masking tape on the scribble strip */
-    --rec:   #C7352B;   /* record lamp: the one accent */
-    --line:  #B7BCB8;   /* hairlines on the faceplate */
-    --on-slate: #E4E8E4;
+    --paper:   #F3EEDB;   /* logo cream */
+    --paper-2: #E9E2C8;
+    --forest:  #1B3320;   /* logo dark green */
+    --leaf:    #33613D;   /* logo mid green */
+    --amber:   #A85524;   /* logo orange, deepened for buttons */
+    --neon:    #FF8A4C;   /* the lit sign */
+    --ink:     #1A2419;
+    --muted:   #4F5A4C;
+    --line:    #D3C9AC;
+    --tape:    #EFE6C8;
+    --on-forest: #EDE7D3;
+    --on-forest-muted: #B9C3B0;
   }
 
   *, *::before, *::after { box-sizing: border-box; }
-
   html { scroll-behavior: smooth; }
   @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 
   body {
     margin: 0;
-    background: var(--plate);
+    background: var(--paper);
     color: var(--ink);
     font-family: "Archivo", "Helvetica Neue", Arial, sans-serif;
     font-size: 1.0625rem;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
   }
+  img { max-width: 100%; display: block; }
 
-  .wrap {
-    width: 100%;
-    max-width: 68rem;
-    margin: 0 auto;
-    padding: 0 1.25rem;
-  }
+  .wrap { width: 100%; max-width: 70rem; margin: 0 auto; padding: 0 1.25rem; }
 
   a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 0.2em; }
-  a:hover { color: var(--rec); }
-  a:focus-visible, .btn:focus-visible {
-    outline: 3px solid var(--rec);
+  a:hover { color: var(--amber); }
+  a:focus-visible, button:focus-visible {
+    outline: 3px solid var(--neon);
     outline-offset: 3px;
     border-radius: 2px;
   }
 
-  h1, h2, h3 {
-    font-family: "Archivo", "Arial Narrow", Arial, sans-serif;
-    font-stretch: 68%;
-    line-height: 0.95;
-    margin: 0;
+  h1, h2, h3 { font-family: "Archivo", "Arial Narrow", Arial, sans-serif; font-stretch: 68%; line-height: 0.95; margin: 0; }
+
+  .visually-hidden {
+    position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
   }
+
+  /* ---------- Neon intro (first visit) ---------- */
+  .intro-screen { display: none; }
+  html.intro body { overflow: hidden; }
+  html.intro .intro-screen {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: #140B07;
+    transition: opacity 1.2s ease;
+  }
+  .intro-screen.out { opacity: 0; pointer-events: none; }
+  .intro-screen video { width: 100%; height: 100%; object-fit: cover; }
+  .intro-skip {
+    position: absolute;
+    right: 1.25rem;
+    bottom: 1.25rem;
+    padding: 0.55rem 1rem;
+    font: 600 0.9rem/1 "Archivo", Arial, sans-serif;
+    color: #F6E7D8;
+    background: rgba(20, 11, 7, 0.55);
+    border: 1px solid rgba(246, 231, 216, 0.45);
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  .intro-skip:hover { background: rgba(20, 11, 7, 0.8); }
 
   /* ---------- Hero ---------- */
-  .hero { padding: clamp(3.5rem, 12vw, 8rem) 0 clamp(3rem, 9vw, 6rem); }
+  .hero {
+    position: relative;
+    padding: clamp(2.5rem, 8vw, 5.5rem) 0 clamp(3rem, 8vw, 5.5rem);
+    background: var(--paper) url("assets/wash-1.jpg") center / cover no-repeat;
+  }
+  .hero-grid { display: grid; gap: 2.5rem; align-items: center; }
+  @media (min-width: 860px) { .hero-grid { grid-template-columns: 1.05fr 1fr; gap: 3.5rem; } }
 
   .status {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.6rem;
-    margin: 0 0 1.75rem;
-    font-size: 0.95rem;
-    font-weight: 500;
-    color: var(--muted);
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    margin: 0 0 1.5rem; font-size: 0.95rem; font-weight: 500; color: var(--muted);
   }
   .lamp {
-    width: 0.7rem;
-    height: 0.7rem;
-    border-radius: 50%;
-    background: var(--rec);
-    box-shadow: 0 0 0 3px rgba(199, 53, 43, 0.18);
+    width: 0.7rem; height: 0.7rem; border-radius: 50%;
+    background: var(--neon);
+    box-shadow: 0 0 0 3px rgba(255, 138, 76, 0.22), 0 0 12px rgba(255, 138, 76, 0.8);
     animation: lamp 2.6s ease-in-out infinite;
   }
-  @keyframes lamp { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+  @keyframes lamp { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
   @media (prefers-reduced-motion: reduce) { .lamp { animation: none; } }
 
-  .hero h1 {
-    font-size: clamp(3.6rem, 17vw, 9.5rem);
-    font-weight: 800;
-    letter-spacing: -0.01em;
-    line-height: 0.86;
-  }
-  .hero h1 span { display: block; }
-
-  .tagline {
-    max-width: 34rem;
-    margin: 1.75rem 0 0;
-    font-size: clamp(1.15rem, 3.4vw, 1.4rem);
-    line-height: 1.45;
-  }
+  .hero h1 img { width: min(100%, 34rem); height: auto; margin-left: -0.4rem; }
+  .tagline { max-width: 32rem; margin: 1.5rem 0 0; font-size: clamp(1.15rem, 3.4vw, 1.4rem); line-height: 1.45; }
   .services { margin: 0.5rem 0 0; color: var(--muted); }
 
-  .actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 2.25rem; }
+  .actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 2rem; }
   .btn {
-    display: inline-block;
-    padding: 0.85rem 1.4rem;
-    font-weight: 600;
-    font-size: 1rem;
-    text-decoration: none;
-    border: 2px solid var(--ink);
-    border-radius: 3px;
+    display: inline-block; padding: 0.85rem 1.4rem;
+    font-weight: 600; font-size: 1rem; text-decoration: none;
+    border: 2px solid var(--ink); border-radius: 3px;
   }
-  .btn-rec { background: var(--rec); border-color: var(--rec); color: #fff; }
-  .btn-rec:hover { background: #A92B23; border-color: #A92B23; color: #fff; }
+  .btn-main { background: var(--amber); border-color: var(--amber); color: #fff; }
+  .btn-main:hover { background: #8E4519; border-color: #8E4519; color: #fff; }
   .btn-line { background: transparent; color: var(--ink); }
-  .btn-line:hover { background: var(--ink); color: var(--plate); }
+  .btn-line:hover { background: var(--ink); color: var(--paper); }
+
+  .sign {
+    margin: 0;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #140B07;
+    box-shadow: 0 18px 50px -18px rgba(226, 96, 43, 0.55), 0 2px 0 rgba(0, 0, 0, 0.08);
+  }
+  .sign img { width: 100%; height: auto; aspect-ratio: 1166 / 656; object-fit: cover; }
 
   /* ---------- Sections ---------- */
-  .section { padding: clamp(3rem, 9vw, 5.5rem) 0; border-top: 1px solid var(--line); }
+  .section { padding: clamp(3rem, 9vw, 5.5rem) 0; }
   .section h2 { font-size: clamp(2rem, 7vw, 3rem); font-weight: 700; }
   .lede { max-width: 36rem; margin: 0.9rem 0 0; color: var(--muted); }
+
+  .dark { background: var(--forest); color: var(--on-forest); }
+  .dark .lede { color: var(--on-forest-muted); }
+  .dark a:hover { color: var(--neon); }
 
   /* Spotify player */
   .player { margin-top: 2rem; max-width: 46rem; }
   .player iframe { display: block; width: 100%; height: 352px; border: 0; border-radius: 12px; }
   .player .empty {
-    display: grid;
-    place-items: center;
-    min-height: 152px;
-    margin: 0;
-    padding: 1.5rem;
-    border: 2px dashed var(--line);
-    border-radius: 12px;
-    color: var(--muted);
-    text-align: center;
+    display: grid; place-items: center; min-height: 152px; margin: 0; padding: 1.5rem;
+    border: 2px dashed rgba(237, 231, 211, 0.3); border-radius: 12px; text-align: center;
   }
 
-  /* ---------- Artists: the scribble strip ---------- */
-  .console {
-    background: var(--slate);
-    color: var(--on-slate);
-    border-top: 0;
+  /* Rooms */
+  .rooms { display: grid; gap: 1rem; margin-top: 2.25rem; }
+  @media (min-width: 760px) {
+    .rooms { grid-template-columns: 1.6fr 1fr 0.8fr; align-items: stretch; }
   }
-  .console .lede { color: #B9C2C4; }
+  .rooms figure { margin: 0; display: flex; flex-direction: column; }
+  .rooms img {
+    width: 100%; flex: 1; min-height: 0;
+    aspect-ratio: 4 / 3; object-fit: cover;
+    border-radius: 4px; background: var(--paper-2);
+  }
+  @media (min-width: 760px) { .rooms img { aspect-ratio: auto; height: 26rem; } }
+  .rooms figcaption { margin-top: 0.55rem; font-size: 0.95rem; color: var(--muted); }
 
+  /* Artists: the scribble strip */
   .strip {
-    list-style: none;
-    margin: 2.25rem 0 0;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.9rem 0.7rem;
+    list-style: none; margin: 2.25rem 0 0; padding: 0;
+    display: flex; flex-wrap: wrap; gap: 0.9rem 0.7rem;
   }
   .strip li {
     font-family: "Permanent Marker", "Marker Felt", "Chalkboard SE", "Segoe Print", "Bradley Hand", cursive;
@@ -172,60 +203,70 @@
   }
   .strip li:nth-child(3n+2) { transform: rotate(0.9deg); }
   .strip li:nth-child(3n)   { transform: rotate(-0.4deg); }
-
   .strip a { color: inherit; text-decoration: none; }
-  .strip a:hover { color: var(--rec); text-decoration: underline; }
+  .strip a:hover { color: var(--amber); text-decoration: underline; }
+
   .partners-title { margin-top: 3rem; font-size: 1.6rem; font-weight: 700; }
-  .partners { list-style: none; margin: 1.1rem 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem 1.6rem; color: #C9D1D2; font-weight: 500; }
+  .partners {
+    list-style: none; margin: 1.1rem 0 0; padding: 0;
+    display: flex; flex-wrap: wrap; gap: 0.5rem 1.6rem;
+    color: var(--on-forest-muted); font-weight: 500;
+  }
   .partners a { color: inherit; }
   .partners a:hover { color: #fff; }
 
-  /* ---------- Visit ---------- */
+  /* Visit */
   .visit-grid { display: grid; gap: 2.5rem; margin-top: 2rem; }
   @media (min-width: 760px) { .visit-grid { grid-template-columns: 1fr 1fr; gap: 4rem; } }
-
   .visit-grid h3 { font-size: 1.6rem; font-weight: 700; margin-bottom: 0.9rem; }
   address { font-style: normal; font-size: 1.2rem; line-height: 1.5; }
   .note { margin: 0.75rem 0 0; color: var(--muted); }
   .map-links { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1.4rem; }
   .map-links .btn { padding: 0.65rem 1.1rem; font-size: 0.95rem; }
+  .parking-map { display: block; margin-top: 1rem; max-width: 26rem; }
+  .parking-map img { width: 100%; height: auto; border-radius: 4px; border: 1px solid var(--line); }
 
-  .details { margin: 0; padding: 0; list-style: none; }
-  .details li { padding: 0.8rem 0; border-top: 1px solid var(--line); }
-  .details li:last-child { border-bottom: 1px solid var(--line); }
-  .details strong { display: block; font-weight: 600; }
-
-  /* ---------- Contact ---------- */
+  /* Contact */
+  .contact { background: var(--paper) url("assets/wash-2.jpg") center / cover no-repeat; }
   .contact-list { margin: 2rem 0 0; display: grid; gap: 1.25rem; }
   @media (min-width: 760px) { .contact-list { grid-template-columns: repeat(3, 1fr); } }
   .contact-list dt { color: var(--muted); font-size: 0.95rem; }
   .contact-list dd { margin: 0.2rem 0 0; font-size: 1.25rem; font-weight: 600; overflow-wrap: anywhere; }
 
-  /* ---------- Footer ---------- */
-  footer { background: var(--slate); color: #B9C2C4; padding: 2rem 0; font-size: 0.95rem; }
+  footer { background: var(--forest); color: var(--on-forest-muted); padding: 2rem 0; font-size: 0.95rem; }
   footer p { margin: 0; }
 </style>
 </head>
 
 <body>
 
+<div class="intro-screen" id="intro" aria-hidden="true">
+  <video id="intro-video" muted playsinline preload="none" poster="assets/neon-poster.jpg" data-src="assets/neon-intro.mp4"></video>
+  <button class="intro-skip" type="button" id="intro-skip">Skip intro</button>
+</div>
+
 <header class="hero">
-  <div class="wrap">
-    <p class="status"><span class="lamp" aria-hidden="true"></span>Booking sessions now</p>
-    <h1><span>Mid City</span><span>Studio</span></h1>
-    <p class="tagline">An all-purpose recording studio in the middle of Minneapolis. Let's make art.</p>
-    <!-- EDIT: one line on what you offer -->
-    <p class="services">Recording, mixing and production.</p>
-    <div class="actions">
-      <a class="btn btn-rec" href="mailto:midcitystudiomn@gmail.com?subject=Session%20inquiry">Book a session</a>
-      <a class="btn btn-line" href="#visit">Find the studio</a>
+  <div class="wrap hero-grid">
+    <div>
+      <p class="status"><span class="lamp" aria-hidden="true"></span>Booking sessions now</p>
+      <h1><img src="assets/logo.png" alt="Mid City Studio" width="900" height="440"></h1>
+      <p class="tagline">An all-purpose recording studio in the middle of Minneapolis. Let's make art.</p>
+      <!-- EDIT: one line on what you offer -->
+      <p class="services">Recording, mixing and production.</p>
+      <div class="actions">
+        <a class="btn btn-main" href="mailto:midcitystudiomn@gmail.com?subject=Session%20inquiry">Book a session</a>
+        <a class="btn btn-line" href="#visit">Find the studio</a>
+      </div>
     </div>
+    <figure class="sign">
+      <img src="assets/neon-lit.jpg" alt="The Mid City neon sign, lit" width="1166" height="656">
+    </figure>
   </div>
 </header>
 
 <main>
 
-  <section class="section" id="listen" aria-labelledby="listen-title">
+  <section class="section dark" id="listen" aria-labelledby="listen-title">
     <div class="wrap">
       <h2 id="listen-title">Hear what we've made</h2>
       <p class="lede">Records tracked, mixed and produced at Mid City.</p>
@@ -234,10 +275,31 @@
     </div>
   </section>
 
+  <section class="section" id="rooms" aria-labelledby="rooms-title">
+    <div class="wrap">
+      <h2 id="rooms-title">The rooms</h2>
+      <p class="lede">Space to track a full band, then sit down and mix it.</p>
+      <!-- EDIT: room names in the captions -->
+      <div class="rooms">
+        <figure>
+          <img src="assets/room-live.jpg" alt="A band set up in the live room under green light" width="1400" height="788" loading="lazy">
+          <figcaption>Live room</figcaption>
+        </figure>
+        <figure>
+          <img src="assets/room-console.jpg" alt="An engineer at the production console under purple light" width="750" height="1000" loading="lazy">
+          <figcaption>Production console</figcaption>
+        </figure>
+        <figure>
+          <img src="assets/room-studio-a.jpg" alt="Studio A desk with feathered wall panels" width="449" height="796" loading="lazy">
+          <figcaption>Studio A</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
   <!-- Artist and partner lists: one <li> per name. Add a line to add a name, delete a line to remove one.
-       To link a name, wrap it like this:  <li><a href="https://open.spotify.com/artist/...">Name</a></li>
-       (Spotify, Bandcamp, Facebook or any page works.) Linked names underline on hover. -->
-  <section class="section console" id="artists" aria-labelledby="artists-title">
+       To link a name, wrap it like this:  <li><a href="https://open.spotify.com/artist/...">Name</a></li> -->
+  <section class="section dark" id="artists" aria-labelledby="artists-title">
     <div class="wrap">
       <h2 id="artists-title">Artists we've worked with</h2>
       <p class="lede">A few of the people who've come through the doors.</p>
@@ -251,6 +313,7 @@
         <li>Beta Leftovers</li>
         <li>Boy Dirt Car</li>
         <li>Brad Fabian</li>
+        <li>Braingiver</li>
         <li>Brock Harks</li>
         <li>Broder</li>
         <li>Clungtite</li>
@@ -302,6 +365,7 @@
         <li>Soph Eris</li>
         <li>Super Models</li>
         <li>Suzie</li>
+        <li>Tahiti</li>
         <li>Tender Meat</li>
         <li>Terrtheom</li>
         <li>The Overview Effect Musical</li>
@@ -339,7 +403,6 @@
     <div class="wrap">
       <h2 id="visit-title">Visit</h2>
       <div class="visit-grid">
-
         <div>
           <h3>Where we are</h3>
           <!-- The map buttons below build themselves from this address. -->
@@ -353,24 +416,19 @@
             <a class="btn btn-line" id="amaps" href="#" target="_blank" rel="noopener">Open in Apple Maps</a>
           </div>
         </div>
-
         <div>
           <h3>Parking and getting in</h3>
-          <!-- EDIT: parking. When the details are ready, replace the paragraph below with this list:
-          <ul class="details">
-            <li><strong>Parking</strong>Where to park, and any meters or permits to know about</li>
-            <li><strong>Entrance</strong>Which door to use and how to get in</li>
-            <li><strong>Load-in</strong>Where to unload gear and how far it is to the rooms</li>
-          </ul>
-          -->
-          <p class="note">Full parking and load-in details are coming soon. Email us before your session and we'll walk you through it.</p>
+          <!-- EDIT: parking details -->
+          <p class="note">Parking and the entrance are marked on the map. Email us before your session with any questions and we'll walk you through it.</p>
+          <a class="parking-map" href="assets/parking-map.jpg" target="_blank" rel="noopener">
+            <img src="assets/parking-map.jpg" alt="Map showing where to park and the entrance on N 1st Ave" width="868" height="1000" loading="lazy">
+          </a>
         </div>
-
       </div>
     </div>
   </section>
 
-  <section class="section" id="contact" aria-labelledby="contact-title">
+  <section class="section contact" id="contact" aria-labelledby="contact-title">
     <div class="wrap">
       <h2 id="contact-title">Contact</h2>
       <p class="lede">Tell us about your project and when you'd like to come in.</p>
@@ -400,11 +458,35 @@
 </footer>
 
 <script>
+  // Neon intro: plays once, then fades into the page.
+  (function () {
+    var root = document.documentElement;
+    var screen = document.getElementById('intro');
+    if (!root.classList.contains('intro')) { screen.remove(); return; }
+    var video = document.getElementById('intro-video');
+    var done = false;
+    function finish() {
+      if (done) return;
+      done = true;
+      try { localStorage.setItem('mcs-intro-seen', '1'); } catch (e) {}
+      screen.classList.add('out');
+      setTimeout(function () { root.classList.remove('intro'); screen.remove(); }, 1250);
+    }
+    video.src = video.getAttribute('data-src');
+    video.addEventListener('timeupdate', function () { if (video.currentTime >= 6.6) finish(); });
+    video.addEventListener('ended', finish);
+    video.addEventListener('error', finish);
+    screen.addEventListener('click', finish);
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') finish(); });
+    setTimeout(finish, 12000);
+    var p = video.play();
+    if (p && p.catch) p.catch(finish);
+  })();
+
   // Spotify: turn the pasted share link into an embedded player.
   (function () {
     var player = document.querySelector('.player');
-    var link = (player.getAttribute('data-playlist') || '').trim();
-    var match = link.match(/playlist\/([A-Za-z0-9]+)/);
+    var match = (player.getAttribute('data-playlist') || '').match(/playlist\/([A-Za-z0-9]+)/);
     if (match) {
       var frame = document.createElement('iframe');
       frame.src = 'https://open.spotify.com/embed/playlist/' + match[1] + '?utm_source=generator&theme=0';
@@ -413,16 +495,15 @@
       frame.allow = 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
       player.appendChild(frame);
     } else {
-      player.innerHTML = '<p class="empty">[Spotify playlist goes here]</p>';
+      player.innerHTML = '<p class="empty">Playlist coming soon</p>';
     }
   })();
 
   // Map buttons: built from the address text, so the address only lives in one place.
   (function () {
-    var text = document.getElementById('address').innerText.replace(/\s+/g, ' ').trim();
-    var query = encodeURIComponent(text);
-    document.getElementById('gmaps').href = 'https://www.google.com/maps/search/?api=1&query=' + query;
-    document.getElementById('amaps').href = 'https://maps.apple.com/?q=' + query;
+    var q = encodeURIComponent(document.getElementById('address').innerText.replace(/\s+/g, ' ').trim());
+    document.getElementById('gmaps').href = 'https://www.google.com/maps/search/?api=1&query=' + q;
+    document.getElementById('amaps').href = 'https://maps.apple.com/?q=' + q;
   })();
 
   document.getElementById('year').textContent = new Date().getFullYear();
