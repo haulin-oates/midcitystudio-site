@@ -20,17 +20,15 @@
   MID CITY STUDIO, v1 site
   - Artist and partner lists: one <li> per name (see the "artists" section).
   - Images and the intro video live in the assets/ folder.
-  - The neon intro plays once per visitor. Add #intro to the address to watch it again.
+  - The neon intro plays on every visit (visitors can skip it).
 -->
 
 <script>
-  // Decide before the page draws whether to show the neon intro (first visit only).
+  // Show the neon intro on every visit (skipped only for people whose device asks for reduced motion).
   (function () {
-    var seen = false;
-    try { seen = localStorage.getItem('mcs-intro-seen') === '1'; } catch (e) {}
     var force = location.hash === '#intro';
     var calm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (force || (!seen && !calm)) document.documentElement.classList.add('intro');
+    if (force || !calm) document.documentElement.classList.add('intro');
   })();
 </script>
 
